@@ -1,0 +1,10 @@
+apiVersion: v1
+name: helm-order-service
+version: 1
+description: This is API for order service
+home: https://github.com/srvrajan/MicroServiceExample.git
+sources:
+  - https://github.com/srvrajan/MicroServiceExample.git
+maintainers:
+  - name: Varadharajan Ramadoss
+    email: srvrajan@gmail.com

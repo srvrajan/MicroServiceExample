@@ -1,0 +1,37 @@
+# Default values for customerapp
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicas: 2
+replicasMax: 2
+cpuTargetPercentage: 50
+image:
+  repository: vrajandocker/order-service
+  tag: 0.0.01
+  pullPolicy: IfNotPresent
+ingress:
+  name: order-serviceapi
+  # This will need to be set at deploy time as it differs from environment to environment
+  domain: "order.apps.net"
+  subdomain: order
+  envdomain: "apps.net"
+  cluster: dev001
+
+  # Mark ssl as true to enable SSL on this service
+  ssl: false
+  metric: false 
+  access_policy: 'public'
+  proxybodysize: 'yes'
+# Change below value if you want to deploy the application in a different namespace
+namespace: dev
+resources: 
+  # We usually recommend not to specify default resources and to leave this as a conscious 
+  # choice for the user. This also increases chances charts run on environments with little 
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following 
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 100m
+    memory: 1Gi
+  requests:
+    cpu: 100m
+    memory: 1Gi
+environment: dev

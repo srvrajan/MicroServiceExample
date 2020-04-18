@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+  annotations:
+  {{- if eq .Values.ingress.proxybodysize "yes" }}
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    nginx.org/client-max-body-size: 10m
+  {{- end }}
+  {{- if eq .Values.ingress.access_policy "public" }}
+    ingress.kubernetes.io/whitelist-source-range: 0.0.0.0/0
+    kubernetes.io/ingress.class: nginx-apps
+  {{- end }}
+  {{- if .Values.ingress.ssl }}
+    kubernetes.io/ingress.class: nginx-apps
+    #kubernetes.io/tls-acme: "true"
+  {{- end }}
+  {{- range $key, $value := .Values.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.ssl }}
+  tls:
+    - hosts:
+      - {{ .Values.ingress.name }}.{{ .Values.ingress.domain }}
+      #secretName: {{ template "name" . }}-tls
+      secretName: wildcard-apps
+  {{- end }}
+  rules:
+  {{- if and .Values.ingress.subdomain .Values.ingress.cluster }}
+    #- host: {{ .Values.ingress.name }}.{{ .Values.ingress.cluster }}.{{ .Values.ingress.subdomain }}.mnscorp.net
+    - host: {{ .Values.ingress.name }}.{{ .Values.ingress.subdomain }}.{{ .Values.ingress.envdomain }}
+  {{- else}}
+    - host: {{ .Values.ingress.name }}.{{ .Values.ingress.domain }}
+  {{- end}}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ template "fullname" . }}
+              servicePort: http
+status:
+  loadBalancer:
+    ingress:
+    - {}

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
+  # We dont need a large deployment history limit as Helm keeps it's own
+  # history
+  revisionHistoryLimit: 2
+  template:
+    metadata:
+      namespace: {{ .Values.namespace }}
+      labels:
+        app: {{ template "fullname" . }}
+        release: "{{ .Release.Name }}"
+    spec:
+      securityContext:  
+        runAsNonRoot: true
+        fsGroup: 1
+        runAsUser: 1000
+        runAsGroup: 3000
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          env:
+          # You can set environment variables that don't change across environments here
+          - name: SPRING_PROFILES_ACTIVE
+            value: {{ .Values.environment }}
+          - name: JAVA_OPTS 
+            value: "-Djava.net.preferIPv4Stack=true -XX:+UseG1GC -XX:ConcGCThreads=12 -XX:MaxMetaspaceSize=256m -Xms512m -Xmx4096m"  
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+              name: http
+          
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
