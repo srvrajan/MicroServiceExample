@@ -1,12 +1,12 @@
 # Default values for customerapp
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-replicas: 2
+replicas: 1
 replicasMax: 2
 cpuTargetPercentage: 50
 image:
   repository: vrajandocker/order-service
-  tag: 0.0.01
+  tag: 0.0.02
   pullPolicy: IfNotPresent
 ingress:
   name: order-serviceapi
@@ -14,7 +14,7 @@ ingress:
   domain: "order.apps.net"
   subdomain: order
   envdomain: "apps.net"
-  cluster: dev001
+  cluster: minikube
 
   # Mark ssl as true to enable SSL on this service
   ssl: false
